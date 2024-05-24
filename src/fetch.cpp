@@ -80,7 +80,24 @@ get_accepted_submissions(const std::string &submission_page_url) {
   std::vector<std::string> contents = get_html_contents(submission_page_url);
   std::vector<Submission> problems;
   std::set<std::string> st;
+  std::string time_str;
   for (size_t i = 1; i < contents.size(); ++i) {
+    if (contents[i].find("format-time") != std::string::npos) {
+      bool enabled = false;
+      time_str.clear();
+      for (size_t j = contents[i].find("format-time"); j < contents[i].length(); ++ j) {
+        if (contents[i][j] == '>') {
+          enabled = true;
+          continue;
+        }
+        if (contents[i][j] == '<') {
+          enabled = false;
+        }
+        if (enabled) {
+          time_str.push_back(contents[i][j]);
+        }
+      }
+    }
     if (contents[i].find(" - ") != std::string::npos &&
         contents[i - 1].find("/contest/") != std::string::npos) {
       std::string problem = trim(contents[i]);
@@ -124,7 +141,7 @@ get_accepted_submissions(const std::string &submission_page_url) {
           i = std::tolower(i);
         }
         problems.push_back(
-            {problem, letter, std::stoi(submission_id), std::stoi(contest_id)});
+            {problem, letter, std::stoi(submission_id), std::stoi(contest_id), Time(time_str)});
       }
     }
   }

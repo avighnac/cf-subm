@@ -23,18 +23,23 @@ void writeSubmissionsToFile(
     size_t size = submissions.size();
     outFile.write((char *)&size, sizeof(size));
 
-    for (const auto &[problem_name, problem_letter, submission_id, contest_id] :
-         submissions) {
-      size_t nameSize = problem_name.size();
+    for (const auto &submission : submissions) {
+      size_t nameSize = submission.problem_name.size();
       outFile.write((char *)&nameSize, sizeof(nameSize));
-      outFile.write(problem_name.data(), nameSize);
+      outFile.write(submission.problem_name.data(), nameSize);
 
-      size_t letterSize = problem_letter.size();
+      size_t letterSize = submission.problem_letter.size();
       outFile.write((char *)&letterSize, sizeof(letterSize));
-      outFile.write(problem_letter.data(), letterSize);
+      outFile.write(submission.problem_letter.data(), letterSize);
 
-      outFile.write((char *)&submission_id, sizeof(submission_id));
-      outFile.write((char *)&contest_id, sizeof(contest_id));
+      outFile.write((char *)&submission.submission_id, sizeof(submission.submission_id));
+      outFile.write((char *)&submission.contest_id, sizeof(submission.contest_id));
+
+      outFile.write((char *)&submission.time.month, sizeof(submission.time.month));
+      outFile.write((char *)&submission.time.date, sizeof(submission.time.date));
+      outFile.write((char *)&submission.time.year, sizeof(submission.time.year));
+      outFile.write((char *)&submission.time.hours, sizeof(submission.time.hours));
+      outFile.write((char *)&submission.time.minutes, sizeof(submission.time.minutes));
     }
   }
 
@@ -62,20 +67,25 @@ readSubmissionsFromFile(const std::string &filename) {
     inFile.read((char *)&size, sizeof(size));
     std::vector<Submission> submissions(size);
 
-    for (auto &[problem_name, problem_letter, submission_id, contest_id] :
-         submissions) {
+    for (auto &submission : submissions) {
       size_t nameSize;
       inFile.read((char *)&nameSize, sizeof(nameSize));
-      problem_name.resize(nameSize);
-      inFile.read(&problem_name[0], nameSize);
+      submission.problem_name.resize(nameSize);
+      inFile.read(&submission.problem_name[0], nameSize);
 
       size_t letterSize;
       inFile.read((char *)&letterSize, sizeof(letterSize));
-      problem_letter.resize(letterSize);
-      inFile.read(&problem_letter[0], letterSize);
+      submission.problem_letter.resize(letterSize);
+      inFile.read(&submission.problem_letter[0], letterSize);
 
-      inFile.read((char *)&submission_id, sizeof(submission_id));
-      inFile.read((char *)&contest_id, sizeof(contest_id));
+      inFile.read((char *)&submission.submission_id, sizeof(submission.submission_id));
+      inFile.read((char *)&submission.contest_id, sizeof(submission.contest_id));
+
+      inFile.read((char *)&submission.time.month, sizeof(submission.time.month));
+      inFile.read((char *)&submission.time.date, sizeof(submission.time.date));
+      inFile.read((char *)&submission.time.year, sizeof(submission.time.year));
+      inFile.read((char *)&submission.time.hours, sizeof(submission.time.hours));
+      inFile.read((char *)&submission.time.minutes, sizeof(submission.time.minutes));
     }
 
     userSubmissions[username] = std::move(submissions);

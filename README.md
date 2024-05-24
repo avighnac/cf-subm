@@ -19,10 +19,22 @@ Usage: cf-subm:
 
 # Submission struct
 ```cpp
+// In russian time
+class Time {
+public:
+  int month;
+  int date;
+  int year;
+
+  int hours;
+  int minutes;
+};
+
 struct Submission {
   std::string problem_name;
   std::string problem_letter;
   int submission_id;
   int contest_id;
+  Time time;
 };
 ```
