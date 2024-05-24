@@ -2,8 +2,8 @@
 #include <iostream>
 #include <map>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 // In russian time
 class Time {
@@ -17,7 +17,10 @@ public:
 
   Time();
   Time(const std::string &s);
+  std::string formatDateTime() const;
 };
+
+bool operator>(const Time &a, const Time &b);
 
 struct Submission {
   std::string problem_name;
@@ -29,7 +32,7 @@ struct Submission {
 
 std::vector<std::string> get_submission_code(const Submission &submission);
 void writeSubmissionsToFile(
-    const std::map<std::string, std::vector<Submission>> &userSubmissions,
+    std::map<std::string, std::vector<Submission>> &userSubmissions,
     const std::string &filename);
 std::map<std::string, std::vector<Submission>>
 readSubmissionsFromFile(const std::string &filename);

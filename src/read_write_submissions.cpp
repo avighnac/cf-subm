@@ -3,13 +3,19 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <algorithm>
 
-void writeSubmissionsToFile(
-    const std::map<std::string, std::vector<Submission>> &userSubmissions,
+void writeSubmissionsToFile(std::map<std::string, std::vector<Submission>> &userSubmissions,
     const std::string &filename) {
   std::ofstream outFile(filename, std::ios::binary);
   if (!outFile) {
     throw std::runtime_error("Unable to open file for writing");
+  }
+
+  for (auto &i : userSubmissions) {
+    std::sort(i.second.begin(), i.second.end(), [](const Submission &a, const Submission &b) {
+      return a.time > b.time;
+    });
   }
 
   size_t userCount = userSubmissions.size();
