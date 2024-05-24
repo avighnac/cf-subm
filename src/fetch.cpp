@@ -76,10 +76,9 @@ void replace_all(std::string &str, const std::string &from,
 }
 
 std::vector<Submission>
-get_accepted_submissions(const std::string &submission_page_url) {
+get_accepted_submissions(const std::string &submission_page_url, std::set<std::string> &st) {
   std::vector<std::string> contents = get_html_contents(submission_page_url);
   std::vector<Submission> problems;
-  std::set<std::string> st;
   std::string time_str;
   for (size_t i = 1; i < contents.size(); ++i) {
     if (contents[i].find("format-time") != std::string::npos) {
@@ -264,12 +263,16 @@ int fetch(const std::string &username) {
     }
   }
 
+  std::set<std::string> st;
+  for (auto &i : submissions[username]) {
+    st.insert(i.problem_name);
+  }
   for (size_t i = 1; i <= num_pages; ++i) {
     std::cout << "On page " << i << "...\n";
     std::vector<Submission> subs;
     try {
       subs = get_accepted_submissions("https://codeforces.com/submissions/" +
-                                      username + "/page/" + std::to_string(i));
+                                      username + "/page/" + std::to_string(i), st);
     } catch (const std::exception &e) {
       std::cerr << e.what() << "\n";
       writeSubmissionsToFile(submissions, "submissions/submissions.dat");
