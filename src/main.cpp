@@ -1,81 +1,36 @@
 #include "include.hpp"
+#include "input/input.hpp"
+#include "commandline/commandline.hpp"
 
 int main(int argc, char **argv) {
-  if (argc == 1) {
-    std::cout << "Usage: cf-subm:\n";
-    std::cout << "  list\n";
-    std::cout << "  fetch [username]\n";
-    std::cout << "  stalk [username] [num_problems]\n";
-    std::cout << "  savetojson [username] [filename]\n";
-    std::cout << "  code [problemname] [username] [filename]\n";
+  commandline::commandline cli(argc, argv);
+
+  if (cli.n_arguments() == 1) {
+    cli.print_usage();
     return 0;
   }
-  if (argc >= 2 && std::string(argv[1]) == "fetch") {
-    std::string username;
-    if (argc == 2) {
-      std::cout << "Enter a username: ";
-      std::cin >> username;
-    } else {
-      username = std::string(argv[2]);
-    }
+
+  const std::string function = cli.get_argument("function", 1);
+  if (function == "fetch") {
+    std::string username = cli.get_argument("username", 2);
     return fetch(username);
-  }
-  if (argc >= 2 && std::string(argv[1]) == "stalk") {
-    std::string username;
-    if (argc == 2) {
-      std::cout << "Enter a username: ";
-      std::cin >> username;
-    } else {
-      username = std::string(argv[2]);
-    }
-    int num_problems = 10;
-    if (argc >= 4) {
-      try {
-        num_problems = std::stoi(std::string(argv[3]));
-      } catch (std::exception e) {
-      }
-    }
+  } else if (function == "stalk") {
+    std::string username = cli.get_argument("username", 2);
+    int num_problems = cli.get_optional_int_argument(3, 10);
     return stalk(username, num_problems);
-  }
-  if (argc >= 2 && std::string(argv[1]) == "savetojson") {
-    std::string username;
-    if (argc == 2) {
-      std::cout << "Enter a username: ";
-      std::cin >> username;
-    } else {
-      username = std::string(argv[2]);
-    }
-    std::string filename = "output.json";
-    if (argc >= 4) {
-      filename = std::string(argv[3]);
-    }
+  } else if (function == "savetojson") {
+    std::string username = cli.get_argument("username", 2);
+    std::string filename = cli.get_optional_argument(3, "output.json");
     return savetojson(username, filename);
-  }
-  if (argc >= 2 && std::string(argv[1]) == "list") {
+  } else if (function == "list") {
     auto submissions = readSubmissionsFromFile("submissions/submissions.dat");
     for (auto &i : submissions) {
       std::cout << i.first << ": " << i.second.size() << " submissions\n";
     }
-  }
-  if (argc >= 2 && std::string(argv[1]) == "code") {
-    std::string problemname;
-    if (argc < 3) {
-      std::cout << "Enter a problem\'s name: ";
-      std::getline(std::cin, problemname);
-    } else {
-      problemname = std::string(argv[2]);
-    }
-    std::string username;
-    if (argc < 4) {
-      std::cout << "Enter a username: ";
-      std::cin >> username;
-    } else {
-      username = std::string(argv[3]);
-    }
-    std::string filename;
-    if (argc >= 5) {
-      filename = std::string(argv[4]);
-    }
+  } else if (function == "code") {
+    std::string username = cli.get_argument("username", 2);
+    std::string problemname = cli.get_argument("problem\'s name", 3);
+    std::string filename = cli.get_optional_argument(4, "");
     return code(problemname, username, filename);
   }
 }
