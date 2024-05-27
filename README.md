@@ -8,7 +8,7 @@ Usage: cf-subm:
   fetch [username]
   stalk [username] [num_problems]
   savetojson [username] [filename]
-  code [problemname] [username] [filename]
+  code [username] [problemname] [filename]
 ```
 
 - `list` lists the number of submissions stored for each user.
