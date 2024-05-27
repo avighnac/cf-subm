@@ -1,13 +1,14 @@
-#include "include.hpp"
-#include "network.hpp"
+#include "../include.hpp"
+#include "cf_subm.hpp"
 #include <iomanip>
 
-int stalk(const std::string &username, int num_problems) {
-  auto submissions = readSubmissionsFromFile("submissions/submissions.dat");
+namespace cf_subm {
+void cf_subm::stalk(const std::string &username, int num_problems) {
+  auto submissions = readSubmissionsFromFile(file_path);
   if (submissions[username].empty()) {
     std::cout << "Error: no submissions found! Did you run 'cf-subm fetch "
               << username << "'?\n";
-    return 1;
+    return;
   }
   std::cout << "Recently solved problems by " << username << ":\n";
 
@@ -26,5 +27,6 @@ int stalk(const std::string &username, int num_problems) {
               << " (" << submission.time.formatDateTime() << ")\n";
   }
 
-  return 0;
+  return;
+}
 }

@@ -1,12 +1,14 @@
-#include "include.hpp"
+#include "cf_subm.hpp"
+#include "../include.hpp"
 #include <fstream>
 
-int savetojson(const std::string &username, const std::string &filename) {
-  auto submissions = readSubmissionsFromFile("submissions/submissions.dat");
+namespace cf_subm {
+void cf_subm::savetojson(const std::string &username, const std::string &filename) {
+  auto submissions = readSubmissionsFromFile(file_path);
   if (submissions[username].empty()) {
     std::cout << "Error: no submissions found! Did you run \'cf-subm fetch "
               << username << "\'?\n";
-    return 1;
+    return;
   }
   std::ofstream f(filename);
   f << "{\"problems\": {\n";
@@ -33,5 +35,6 @@ int savetojson(const std::string &username, const std::string &filename) {
   f << "}}";
   f.close();
   std::cout << "Data written to " << filename << "\n";
-  return 0;
+  return;
 }
+};

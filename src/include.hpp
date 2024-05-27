@@ -5,20 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-// In russian time
-class Time {
-public:
-  int month;
-  int date;
-  int year;
-
-  int hours;
-  int minutes;
-
-  Time();
-  Time(const std::string &s);
-  std::string formatDateTime() const;
-};
+#include "time/time.hpp"
 
 bool operator>(const Time &a, const Time &b);
 

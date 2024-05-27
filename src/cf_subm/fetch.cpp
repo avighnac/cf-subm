@@ -1,7 +1,7 @@
-#include "include.hpp"
-#include "network.hpp"
+#include "cf_subm.hpp"
+#include "../include.hpp"
+#include "../network/network.hpp"
 #include <algorithm>
-// #include <csignal>
 #include <curl/curl.h>
 #include <filesystem>
 #include <fstream>
@@ -147,7 +147,7 @@ get_accepted_submissions(const std::string &submission_page_url, std::set<std::s
   return problems;
 }
 
-std::string decodeHTMLEntities(const std::string &str) {
+std::string decode_html_entities(const std::string &str) {
   static const std::unordered_map<std::string, std::string> htmlEntities = {
       {"&quot;", "\""}, {"&#39;", "\'"}, {"&amp;", "&"},
       {"&lt;", "<"},    {"&gt;", ">"},   {"&nbsp;", " "}};
@@ -200,7 +200,7 @@ std::vector<std::string> get_submission_code(const Submission &submission) {
     while (!i.empty() && i.back() == '\r') {
       i.pop_back();
     }
-    i = decodeHTMLEntities(i);
+    i = decode_html_entities(i);
   }
 
   if (ans.empty()) {
@@ -222,22 +222,6 @@ std::string get_submission_filename(const Submission &submission) {
   return ans;
 }
 
-std::map<std::string, std::vector<Submission>> submissions;
-
-// void signalHandler(int signum) {
-//   std::cout << "\nInterrupt signal (" << signum << ") received. Saving
-//   data..."
-//             << std::endl;
-
-//   try {
-//     writeSubmissionsToFile(submissions, "submissions/submissions.dat");
-//   } catch (const std::runtime_error &e) {
-//     std::cerr << "Failed to save data: " << e.what() << std::endl;
-//   }
-
-//   std::exit(signum);
-// }
-
 bool file_exists(std::string filename) {
   std::ifstream f(filename);
   if (f.good()) {
@@ -247,56 +231,56 @@ bool file_exists(std::string filename) {
   return false;
 }
 
-int fetch(const std::string &username) {
-  // std::signal(SIGINT, signalHandler);
-  const int num_pages = get_num_submission_pages(username);
-  std::cout << num_pages << " submission pages found.\n";
+namespace cf_subm {
+  void cf_subm::fetch(const std::string &username) {
+    const int num_pages = get_num_submission_pages(username);
+    std::cout << num_pages << " submission pages found.\n";
 
-  std::set<int> existing_submissions;
+    std::set<int> existing_submissions;
+    std::map<std::string, std::vector<Submission>> submissions;
 
-  if (!std::filesystem::exists("submissions")) {
-    std::filesystem::create_directory("submissions");
-  } else if (file_exists("submissions/submissions.dat")) {
-    submissions = readSubmissionsFromFile("submissions/submissions.dat");
+    if (!std::filesystem::exists(global_vars.save_path + "/cf-subm/")) {
+      std::filesystem::create_directory(global_vars.save_path + "/cf-subm/");
+    } else if (file_exists(file_path)) {
+      submissions = readSubmissionsFromFile(file_path);
+      for (auto &i : submissions[username]) {
+        existing_submissions.insert(i.submission_id);
+      }
+    }
+
+    std::set<std::string> st;
     for (auto &i : submissions[username]) {
-      existing_submissions.insert(i.submission_id);
+      st.insert(i.problem_name);
     }
-  }
+    for (size_t i = 1; i <= num_pages; ++i) {
+      std::cout << "On page " << i << "...\n";
+      std::vector<Submission> subs;
+      try {
+        subs = get_accepted_submissions("https://codeforces.com/submissions/" +
+                                        username + "/page/" + std::to_string(i), st);
+      } catch (const std::exception &e) {
+        std::cerr << e.what() << "\n";
+        writeSubmissionsToFile(submissions, file_path);
+        return;
+      }
 
-  std::set<std::string> st;
-  for (auto &i : submissions[username]) {
-    st.insert(i.problem_name);
-  }
-  for (size_t i = 1; i <= num_pages; ++i) {
-    std::cout << "On page " << i << "...\n";
-    std::vector<Submission> subs;
-    try {
-      subs = get_accepted_submissions("https://codeforces.com/submissions/" +
-                                      username + "/page/" + std::to_string(i), st);
-    } catch (const std::exception &e) {
-      std::cerr << e.what() << "\n";
-      writeSubmissionsToFile(submissions, "submissions/submissions.dat");
-      return 0;
-    }
-
-    bool ran_into_existing = false;
-
-    for (auto &sub : subs) {
-      if (existing_submissions.count(sub.submission_id)) {
-        ran_into_existing = true;
+      bool ran_into_existing = false;
+      for (auto &sub : subs) {
+        if (existing_submissions.count(sub.submission_id)) {
+          ran_into_existing = true;
+          break;
+        }
+        std::cout << "Processed submission for " << sub.problem_name << "\n";
+        submissions[username].push_back(sub);
+        existing_submissions.insert(sub.submission_id);
+      }
+      if (ran_into_existing) {
         break;
       }
-      std::cout << "Processed submission for " << sub.problem_name << "\n";
-      submissions[username].push_back(sub);
-      existing_submissions.insert(sub.submission_id);
     }
 
-    if (ran_into_existing) {
-      break;
-    }
+    writeSubmissionsToFile(submissions, file_path);
+    std::cout << submissions[username].size() << " submissions found.\n";
+    return;
   }
-
-  writeSubmissionsToFile(submissions, "submissions/submissions.dat");
-  std::cout << submissions[username].size() << " submissions found.\n";
-  return 0;
 }

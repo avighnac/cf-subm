@@ -1,4 +1,5 @@
-#include "include.hpp"
+#include "cf_subm.hpp"
+#include "../include.hpp"
 
 std::string lowercase(std::string s) {
   for (auto &i : s) {
@@ -7,9 +8,10 @@ std::string lowercase(std::string s) {
   return s;
 }
 
-int code(const std::string &problemname, const std::string &username,
+namespace cf_subm {
+void cf_subm::code(const std::string &problemname, const std::string &username,
          const std::string &filename) {
-  auto submissions = readSubmissionsFromFile("submissions/submissions.dat");
+  auto submissions = readSubmissionsFromFile(file_path);
   std::vector<Submission> matching;
   for (auto &i : submissions[username]) {
     if (lowercase(i.problem_name).find(problemname) != std::string::npos) {
@@ -18,7 +20,7 @@ int code(const std::string &problemname, const std::string &username,
   }
   if (matching.empty()) {
     std::cout << "Error: no matching submissions found\n";
-    return 1;
+    return;
   }
   if (matching.size() != 1) {
     std::cout << "More than one matching submission found:\n";
@@ -26,7 +28,7 @@ int code(const std::string &problemname, const std::string &username,
       std::cout << "  " << i.problem_name << " from contest " << i.contest_id
                 << "\n";
     }
-    return 1;
+    return;
   }
 
   auto code = get_submission_code(matching[0]);
@@ -34,7 +36,7 @@ int code(const std::string &problemname, const std::string &username,
     for (auto &i : code) {
       std::cout << i << "\n";
     }
-    return 0;
+    return;
   } else {
     std::ofstream f(filename);
     for (auto &i : code) {
@@ -42,6 +44,7 @@ int code(const std::string &problemname, const std::string &username,
     }
     f.close();
     std::cout << "Code saved to " << filename << "\n";
-    return 0;
+    return;
   }
 }
+};
