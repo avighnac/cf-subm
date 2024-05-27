@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string> // for some reason MSVC has std::getline in this header instead of iostream
 
 namespace input {
     std::string str();
