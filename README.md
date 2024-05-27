@@ -68,12 +68,14 @@ vcpkg integrate install
 vcpkg install curl:x64-windows-static
 ```
 
-Next, you will need to add an environment variable to your system. This variable will store the path of where you've installed vcpkg. For example, if your root folder is in the C:/ directory, your path would be 'C:/vcpkg'.
+Next, you will need to add an environment variable to your system. This variable will store the path of where you've installed vcpkg. For example, if your root folder is in the `C:/` directory, your path would be `C:/vcpkg`.
 
-Press on the windows key and search for 'Edit the system environment variables'. Click on 'Environment Variables...', and below 'System variables', click 'New...'. Type in your variable name as `VCPKG_ROOT` and your path as your respective vcpkg directory's path. Make sure to use forward slashes and not backward ones.
+Press on the windows key and search for 'Edit the system environment variables', Click on 'Environment Variables...', and below 'System variables', click 'New...'. Type in your variable name as `VCPKG_ROOT` and your path as your respective vcpkg directory's path. Make sure to use forward slashes and not backward ones.
 
 Once you're done with all this, you can finally compile the code using CMake. Do note that you will **not** be able to use MinGW (since libcurl is built with MSVC and not with MinGW. If you're up for it and can successfully build libcurl using MinGW, feel free to do so) and will have to use a Visual Studio kit in CMake. Here's the commands you'll need to run:
 ```cmd
-cmake -S. -Bbuild -G "Visual Studio 17 2022" -T host=x64 -A x64
+cmake -S. -Bbuild -T host=x64 -A x64
 cmake --build build --config Release --target ALL_BUILD -j 10 --
 ```
+Note: if the first command does not work, try replacing it with `cmake -S. -Bbuild -G "Visual Studio 17 2022" -T host=x64 -A x64`. You might need to change 2022 to 2019 or some other year depending on the version you have installed. Ignore this if the above commands work.
+
