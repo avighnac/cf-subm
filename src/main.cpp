@@ -5,13 +5,12 @@
 
 int main(int argc, char **argv) {
   commandline::commandline cli(argc, argv);
-
+  cf_subm::cf_subm cf_subm;
+  
   if (cli.n_arguments() == 1) {
     cli.print_usage();
     return 0;
   }
-
-  cf_subm::cf_subm cf_subm;
 
   const std::string function = cli.get_argument("function", 1);
   if (function == "fetch") {

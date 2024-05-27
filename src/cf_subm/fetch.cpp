@@ -76,7 +76,7 @@ void replace_all(std::string &str, const std::string &from,
 }
 
 std::vector<Submission>
-get_accepted_submissions(const std::string &submission_page_url, std::set<std::string> &st) {
+get_accepted_submissions(const std::string &submission_page_url, std::set<std::string> &st, std::set<int> &sub_ids, bool &found_existing) {
   std::vector<std::string> contents = get_html_contents(submission_page_url);
   std::vector<Submission> problems;
   std::string time_str;
@@ -131,6 +131,9 @@ get_accepted_submissions(const std::string &submission_page_url, std::set<std::s
       }
       if (!is_solution_accepted) {
         continue;
+      }
+      if (sub_ids.count(std::stoi(submission_id))) {
+        found_existing = true;
       }
       if (!st.count(problem)) {
         st.insert(problem);
@@ -255,16 +258,16 @@ namespace cf_subm {
     for (size_t i = 1; i <= num_pages; ++i) {
       std::cout << "On page " << i << "...\n";
       std::vector<Submission> subs;
+      bool ran_into_existing = false;
       try {
         subs = get_accepted_submissions("https://codeforces.com/submissions/" +
-                                        username + "/page/" + std::to_string(i), st);
+                                        username + "/page/" + std::to_string(i), st, existing_submissions, ran_into_existing);
       } catch (const std::exception &e) {
         std::cerr << e.what() << "\n";
         writeSubmissionsToFile(submissions, file_path);
         return;
       }
 
-      bool ran_into_existing = false;
       for (auto &sub : subs) {
         if (existing_submissions.count(sub.submission_id)) {
           ran_into_existing = true;
