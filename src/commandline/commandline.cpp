@@ -18,7 +18,7 @@ namespace commandline {
         std::cout << "  fetch [username]\n";
         std::cout << "  stalk [username] [num_problems]\n";
         std::cout << "  savetojson [username] [filename]\n";
-        std::cout << "  code [problemname] [username] [filename]\n";
+        std::cout << "  code [username] [problemname] [filename]\n";
     }
 
     std::string commandline::get_argument(const std::string &message, size_t idx) {
