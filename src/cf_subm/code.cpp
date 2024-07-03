@@ -14,7 +14,7 @@ void cf_subm::code(const std::string &problemname, const std::string &username,
   auto submissions = readSubmissionsFromFile(file_path);
   std::vector<Submission> matching;
   for (auto &i : submissions[username]) {
-    if (lowercase(i.problem_name).find(problemname) != std::string::npos) {
+    if (lowercase(i.problem_name).find(lowercase(problemname)) != std::string::npos) {
       matching.push_back(i);
     }
   }
