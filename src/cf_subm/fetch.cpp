@@ -153,7 +153,8 @@ get_accepted_submissions(const std::string &submission_page_url, std::set<std::s
 std::string decode_html_entities(const std::string &str) {
   static const std::unordered_map<std::string, std::string> htmlEntities = {
       {"&quot;", "\""}, {"&#39;", "\'"}, {"&amp;", "&"},
-      {"&lt;", "<"},    {"&gt;", ">"},   {"&nbsp;", " "}};
+      {"&lt;", "<"},    {"&gt;", ">"},   {"&nbsp;", " "},
+      {"&plusmn;", "\u00b1"}};
   std::string ans = str;
   for (auto &i : htmlEntities) {
     replace_all(ans, i.first, i.second);
@@ -222,6 +223,7 @@ std::string get_submission_filename(const Submission &submission) {
     i = std::tolower(i);
   }
   ans += ".cpp";
+  ans = decode_html_entities(ans);
   return ans;
 }
 
