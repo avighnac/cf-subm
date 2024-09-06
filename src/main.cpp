@@ -1,12 +1,12 @@
+#include "cf_subm/cf_subm.hpp"
+#include "commandline/commandline.hpp"
 #include "include.hpp"
 #include "input/input.hpp"
-#include "commandline/commandline.hpp"
-#include "cf_subm/cf_subm.hpp"
 
 int main(int argc, char **argv) {
   commandline::commandline cli(argc, argv);
   cf_subm::cf_subm cf_subm;
-  
+
   if (cli.n_arguments() == 1) {
     cli.print_usage();
     return 0;
@@ -16,8 +16,7 @@ int main(int argc, char **argv) {
   if (function == "fetch") {
     std::string username = cli.get_argument("username", 2);
     cf_subm.fetch(username);
-  }
-  else if (function == "stalk") {
+  } else if (function == "stalk") {
     std::string username = cli.get_argument("username", 2);
     int num_problems = cli.get_optional_int_argument(3, 10);
     cf_subm.stalk(username, num_problems);
